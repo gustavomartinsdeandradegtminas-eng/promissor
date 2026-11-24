@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+# Quando houver domínio, adicionar a linha abaixo com o endereço certo:
+# Sitemap: https://DOMINIO/sitemap.xml
