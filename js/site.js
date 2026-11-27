@@ -13,6 +13,8 @@
     burger.setAttribute('aria-label',open?'Fechar menu':'Abrir menu');
     mnav.classList.toggle('is-open',open);
     document.body.style.overflow=open?'hidden':'';
+    // enquanto o menu está aberto, o resto da página fica fora do alcance do teclado e do leitor de tela
+    ['main','.ftr','#fab','.skip'].forEach(function(s){var el=$(s);if(el)el.inert=open});
   }
   burger.addEventListener('click',function(){setMenu(burger.getAttribute('aria-expanded')!=='true')});
   $$('a',mnav).forEach(function(a){a.addEventListener('click',function(){setMenu(false)})});
@@ -115,7 +117,7 @@
 
   /* ----- unidades: mapa e cartões ----- */
   function setUnit(id){
-    $$('.pin').forEach(function(p){p.classList.toggle('is-active',p.dataset.unit===id)});
+    $$('.pin').forEach(function(p){var on=p.dataset.unit===id;p.classList.toggle('is-active',on);p.setAttribute('aria-pressed',on?'true':'false')});
     $$('.unit').forEach(function(u){u.classList.toggle('is-active',u.dataset.unit===id)});
   }
   $$('.pin').forEach(function(p){p.addEventListener('click',function(){
@@ -127,9 +129,14 @@
 
   /* ----- formulários: WhatsApp e e-mail ----- */
   function val(id){return ($('#'+id).value||'').trim()}
-  function bad(id,on){var el=$('#'+id);el.setAttribute('aria-invalid',on?'true':'false');return on}
+  function bad(id,on){
+    var el=$('#'+id), msg=$('#'+id+'-e');
+    el.setAttribute('aria-invalid',on?'true':'false');
+    if(msg){if(on)el.setAttribute('aria-describedby',msg.id);else el.removeAttribute('aria-describedby')}
+    return on;
+  }
   function wire(link,url){link.setAttribute('href',url)}
-  $$('.fld input,.fld textarea').forEach(function(el){el.addEventListener('input',function(){el.removeAttribute('aria-invalid')})});
+  $$('.fld input,.fld textarea').forEach(function(el){el.addEventListener('input',function(){el.removeAttribute('aria-invalid');el.removeAttribute('aria-describedby')})});
   function digits(s){return s.replace(/\D/g,'')}
 
   var ctSend=$('#ctSend'), ctStatus=$('#ctStatus');
@@ -144,7 +151,7 @@
     var e1=bad('ct-nome',!val('ct-nome')), e2=bad('ct-msg',!val('ct-msg'));
     if(e1||e2){e.preventDefault();ctStatus.textContent='Preencha os campos marcados para continuar.';(e1?$('#ct-nome'):$('#ct-msg')).focus();return}
     ctBuild();
-    ctStatus.innerHTML='Abrindo o WhatsApp… Se não abrir, <a href="'+ctSend.getAttribute('href')+'" target="_blank" rel="noopener">toque aqui</a>.';
+    ctStatus.innerHTML='Abrindo o WhatsApp… Se não abrir, <a href="'+ctSend.getAttribute('href')+'" target="_blank" rel="noopener">toque aqui<span class="sr"> (abre em nova aba)</span></a>.';
   });
 
   var cvMail=$('#cvMail'), cvZap=$('#cvZap'), cvStatus=$('#cvStatus');
@@ -169,4 +176,18 @@
   }
   cvMail.addEventListener('click',function(e){if(cvCheck(e))cvStatus.innerHTML='Abrindo seu e-mail… Se não abrir, escreva para <strong>'+MAIL+'</strong> e anexe o currículo.'});
   cvZap.addEventListener('click',function(e){if(cvCheck(e))cvStatus.textContent='Abrindo o WhatsApp do RH…'});
+
+  /* ----- formulários: Enter num campo faz o mesmo que o botão principal ----- */
+  [['#ctForm','#ctSend'],['#cvForm','#cvMail']].forEach(function(par){
+    var f=$(par[0]), btn=$(par[1]); if(!f||!btn)return;
+    f.addEventListener('submit',function(e){e.preventDefault();btn.click()});
+    f.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();btn.click()}});
+  });
+
+  /* ----- links que abrem em nova aba avisam quem usa leitor de tela ----- */
+  $$('a[target="_blank"]').forEach(function(a){
+    if(a.hasAttribute('aria-label')){a.setAttribute('aria-label',a.getAttribute('aria-label')+' (abre em nova aba)');return}
+    var alvo=a.querySelector(':scope > span')||a, s=document.createElement('span');
+    s.className='sr'; s.textContent=' (abre em nova aba)'; alvo.appendChild(s);
+  });
 })();

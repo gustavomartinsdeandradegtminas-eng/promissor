@@ -129,7 +129,7 @@ a{color:var(--link)}
 .hero__text .lead{margin-top:1.4rem}
 .cta{display:flex;flex-wrap:wrap;gap:.9rem 1.1rem;margin-top:2rem}
 .hero__meta{margin-top:1.6rem;color:var(--muted);font-size:1rem}
-.hero__meta a{color:var(--ink);font-weight:600;text-decoration-thickness:2px;text-underline-offset:4px}
+.hero__meta a{color:var(--ink);font-weight:600;text-decoration-thickness:2px;text-underline-offset:4px;display:inline-block;padding:.75rem 0;margin:-.75rem 0}
 .hero__visual{position:relative;aspect-ratio:5/4;width:100%;margin-inline:auto}
 .bar{position:absolute;inset:0;overflow:hidden;clip-path:polygon(28% 100%,52% 100%,28% 100%,0 100%);transition:clip-path 1.05s var(--ease-out)}
 .bar__img{position:absolute;left:0;top:-8%;width:100%;height:116%;max-width:none;object-fit:cover;object-position:58% 40%;transform:translate3d(0,calc(var(--sh,0) * var(--k,0) * 1px),0);will-change:transform}
@@ -151,6 +151,9 @@ a{color:var(--link)}
   .bar__img{transform:none}
   .grains{display:none}
 }
+
+@media (min-width:600px) and (max-width:899px){.hero__visual{aspect-ratio:16/9}}
+@media (min-width:700px) and (max-width:899px){.units{grid-template-columns:1fr 1fr}.unit h3{font-size:1.2rem}}
 
 /* faixa de fatos */
 .facts{background:var(--brand-deep);color:#fff}
@@ -183,7 +186,7 @@ a{color:var(--link)}
 .values li:nth-child(3)::after{transition-delay:.24s;background:var(--vinho)}
 .values.is-in li::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.values li::after{transform:scaleX(1);transition:none}}
-@media (min-width:900px){.sobre__fig img{aspect-ratio:1/1}.sobre{grid-template-columns:5fr 6fr;gap:clamp(2.5rem,6vw,6rem)}}
+@media (min-width:700px){.sobre__fig img{aspect-ratio:1/1}.sobre{grid-template-columns:5fr 6fr;gap:clamp(2.5rem,6vw,6rem)}}
 
 /* Serviços: o caminho do grão (linha do tempo) */
 .proc{display:grid;gap:2.5rem}
@@ -274,7 +277,7 @@ a{color:var(--link)}
 .gt__mark{display:grid;place-items:center;width:140px;height:100px;background:#0B0B0B;clip-path:polygon(14% 0,100% 0,86% 100%,0 100%)}
 .gt__mark img{width:76px;height:auto}
 .gt h2{font-size:clamp(1.6rem,2.2vw + .9rem,2.5rem);max-width:24ch}
-.gt__txt p{margin-top:1.1rem;color:var(--muted);max-width:40rem}
+.gt__txt p{margin-top:1.1rem;color:var(--muted);max-width:36rem}
 .gt__txt .gt__fim{color:var(--ink)}
 .gt__links{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.6rem;margin-top:1.7rem}
 .btn--gt{background:#0B0B0B;color:#FFE806;border-color:#FFE806}
@@ -317,9 +320,9 @@ a{color:var(--link)}
 .zap svg{width:.9em;height:.9em;flex:none;color:var(--grao)}
 .zap span{background:linear-gradient(currentColor,currentColor) 0 100%/0 3px no-repeat;transition:background-size .35s var(--ease-out);padding-bottom:.12em}
 @media (hover:hover){.zap:hover span{background-size:100% 3px}}
-.ct__list{list-style:none;margin:2rem 0 0;padding:0;display:grid;gap:.7rem}
-.ct__list a{color:#fff;text-decoration-thickness:1px;text-underline-offset:4px}
-.ct__list li{display:flex;gap:.7rem;align-items:center;color:rgba(255,255,255,.86)}
+.ct__list{list-style:none;margin:2rem 0 0;padding:0;display:grid;gap:0}
+.ct__list a{color:#fff;text-decoration-thickness:1px;text-underline-offset:4px;display:inline-block;padding:.7rem 0}
+.ct__list li{display:flex;gap:.7rem;align-items:center;min-height:44px;color:rgba(255,255,255,.86)}
 .ct__list svg{width:1.25rem;height:1.25rem;flex:none;color:var(--grao)}
 .card{background:var(--surface);color:var(--ink);padding:1.6rem 1.4rem 1.8rem;box-shadow:0 30px 60px -30px rgba(0,0,0,.6);border:1px solid var(--line)}
 .card h3{font-size:1.35rem;margin-bottom:1.2rem}
@@ -332,8 +335,8 @@ a{color:var(--link)}
 .ftr__g{display:grid;gap:2.5rem}
 .ftr img.lg{height:60px;width:auto;margin-bottom:1.1rem}
 .ftr h2{font:600 .95rem/1.3 var(--f-head);color:#fff;margin-bottom:.9rem;letter-spacing:0}
-.ftr ul{list-style:none;margin:0;padding:0;display:grid;gap:.15rem}
-.ftr a{color:rgba(255,255,255,.82);text-decoration:none;display:inline-block;padding:.35rem 0}
+.ftr ul{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.ftr a{color:rgba(255,255,255,.82);text-decoration:none;display:inline-block;padding:.6rem 0}
 .ftr a:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
 .ftr small{display:block;margin-top:2.5rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.14);font-size:.9rem;color:rgba(255,255,255,.62);line-height:1.6}
 @media (min-width:820px){.ftr__g{grid-template-columns:1.4fr 1fr 1.3fr 1fr}}
