@@ -23,23 +23,49 @@
   requestAnimationFrame(function(){requestAnimationFrame(function(){hero.classList.add('is-in')})});
 
   /* ----- scroll: tudo em um único rAF ----- */
-  var steps=$('#steps'), stepEls=$$('.step',steps), ticking=false;
+  var steps=$('#steps'), stepEls=$$('.step',steps), ticking=false, endVisible=false;
   function onScroll(){
     ticking=false;
-    var y=window.scrollY||0, vh=window.innerHeight;
-    hdr.classList.toggle('is-stuck',y>8);
-    fab.classList.toggle('is-on',y>vh*0.7);
-    if(!reduce){hero.style.setProperty('--sh',clamp(y/9,0,60).toFixed(1))}
+    // 1) só leituras (medidas), 2) depois só escritas: evita o navegador recalcular a página várias vezes
+    var y=window.scrollY||0, vh=window.innerHeight, r=null, tops=null;
     if(!reduce){
-      var r=steps.getBoundingClientRect();
-      var p=clamp((vh*0.55-r.top)/r.height,0,1);
-      steps.style.setProperty('--p',p.toFixed(4));
-      stepEls.forEach(function(s){s.classList.toggle('is-on',s.getBoundingClientRect().top<vh*0.62)});
+      r=steps.getBoundingClientRect();
+      if(r.bottom>-vh&&r.top<vh*2){tops=stepEls.map(function(s){return s.getBoundingClientRect().top})}
+    }
+    hdr.classList.toggle('is-stuck',y>8);
+    // o botão flutuante some no Contato e no rodapé, onde o WhatsApp já está na tela
+    fab.classList.toggle('is-on',y>vh*0.7&&!endVisible);
+    if(!reduce&&y<vh*1.5){hero.style.setProperty('--sh',clamp(y/9,0,60).toFixed(1))}
+    if(tops){
+      steps.style.setProperty('--p',clamp((vh*0.55-r.top)/r.height,0,1).toFixed(4));
+      stepEls.forEach(function(s,i){s.classList.toggle('is-on',tops[i]<vh*0.62)});
     }
   }
-  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
-  window.addEventListener('resize',onScroll);
-  onScroll();
+  function tick(){if(!ticking){ticking=true;requestAnimationFrame(onScroll)}}
+  window.addEventListener('scroll',tick,{passive:true});
+  window.addEventListener('resize',tick);
+  tick();
+
+  if('IntersectionObserver' in window){
+    /* fim da página: esconde o botão flutuante */
+    var endState=[false,false], endEls=[$('#contato'),$('.ftr')];
+    var endIO=new IntersectionObserver(function(es){
+      es.forEach(function(e){endState[endEls.indexOf(e.target)]=e.isIntersecting});
+      endVisible=endState[0]||endState[1]; tick();
+    },{rootMargin:'0px 0px -30% 0px'});
+    endEls.forEach(function(el){if(el)endIO.observe(el)});
+
+    /* menu: marca a seção que está no meio da tela */
+    var navLinks=$$('.nav a'), navSecs=navLinks.map(function(a){return $(a.getAttribute('href'))});
+    var navIO=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting)return;
+        var i=navSecs.indexOf(e.target);
+        navLinks.forEach(function(l,j){if(j===i)l.setAttribute('aria-current','true');else l.removeAttribute('aria-current')});
+      });
+    },{rootMargin:'-45% 0px -50% 0px'});
+    navSecs.concat([hero]).forEach(function(s){if(s)navIO.observe(s)});
+  }
 
   /* ----- pilares: sublinhado desenha ao aparecer ----- */
   var vals=$('#values');
@@ -76,12 +102,13 @@
       }
       requestAnimationFrame(frame);
     }
-    function start(){if(running)return;running=true;last=performance.now();requestAnimationFrame(frame)}
+    // só mede e cria os grãos quando o topo está na tela (não pesa no carregamento)
+    var heroOn=true, rz;
+    function start(){if(running||!heroOn||document.hidden)return;if(!W)init();running=true;last=performance.now();requestAnimationFrame(frame)}
     function stop(){running=false}
-    init();
-    window.addEventListener('resize',function(){init()});
+    window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){W=0;if(running)init()},150)});
     if('IntersectionObserver' in window){
-      new IntersectionObserver(function(es){es[0].isIntersecting?start():stop()},{threshold:0}).observe(hero);
+      new IntersectionObserver(function(es){heroOn=es[0].isIntersecting;heroOn?start():stop()},{threshold:0}).observe(hero);
     } else start();
     document.addEventListener('visibilitychange',function(){document.hidden?stop():start()});
   }
